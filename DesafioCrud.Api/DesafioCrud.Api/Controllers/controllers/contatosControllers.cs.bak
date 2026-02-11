@@ -1,0 +1,204 @@
+using Microsoft.AspNetCore.Mvc;
+using DesafioCrud.Api.Data;
+using DesafioCrud.Api.Model;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace DesafioCrud.Api.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    [Produces("application/json")]
+    public class ContatosController : ControllerBase
+    {
+        private readonly IContatoRepository _repository;
+        private readonly ILogger<ContatosController> _logger;
+
+        public ContatosController(IContatoRepository repository, ILogger<ContatosController> logger)
+        {
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        /// <summary>
+        /// Retorna todos os contatos
+        /// </summary>
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<Contato>), 200)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<IEnumerable<Contato>>> GetAll()
+        {
+            try
+            {
+                var contatos = await _repository.GetAllAsync();
+                return Ok(contatos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar contatos");
+                return StatusCode(500, new { message = "Erro interno ao processar requisição" });
+            }
+        }
+
+        /// <summary>
+        /// Retorna um contato específico por ID
+        /// </summary>
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(Contato), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<Contato>> GetById(int id)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest(new { message = "ID inválido" });
+                }
+
+                var contato = await _repository.GetByIdAsync(id);
+                
+                if (contato == null)
+                {
+                    return NotFound(new { message = $"Contato com ID {id} não encontrado" });
+                }
+
+                return Ok(contato);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar contato por ID: {Id}", id);
+                return StatusCode(500, new { message = "Erro interno ao processar requisição" });
+            }
+        }
+
+        /// <summary>
+        /// Cria um novo contato
+        /// </summary>
+        [HttpPost]
+        [ProducesResponseType(typeof(Contato), 201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(409)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<Contato>> Create([FromBody] Contato contato)
+        {
+            if(contato == null)
+            {
+                return BadRequest(new { message = "Dados do contato são obrigatórios" });
+            }
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                // Validação de segurança: email único
+                if (await _repository.EmailExistsAsync(contato.Email))
+                {
+                    return Conflict(new { message = "Email já cadastrado no sistema" });
+                }
+
+                var novoContato = await _repository.CreateAsync(contato);
+                
+                return CreatedAtAction(
+                    nameof(GetById), 
+                    new { id = novoContato.IdPessoa }, 
+                    novoContato
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao criar contato");
+                return StatusCode(500, new { message = "Erro interno ao processar requisição" });
+            }
+        }
+
+        /// <summary>
+        /// Atualiza um contato existente
+        /// </summary>
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(Contato), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(409)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<Contato>> Update(int id, [FromBody] Contato contato)
+        {
+            if(contato == null)
+            {
+                return BadRequest(new { message = "Dados do contato são obrigatórios" });
+            }
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest(new { message = "ID inválido" });
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                if (id != contato.IdPessoa)
+                {
+                    return BadRequest(new { message = "ID da URL não corresponde ao ID do contato" });
+                }
+
+                if (!await _repository.ExistsAsync(id))
+                {
+                    return NotFound(new { message = $"Contato com ID {id} não encontrado" });
+                }
+
+                // Validação: email único (excluindo o próprio registro)
+                if (await _repository.EmailExistsAsync(contato.Email, id))
+                {
+                    return Conflict(new { message = "Email já cadastrado para outro contato" });
+                }
+
+                var contatoAtualizado = await _repository.UpdateAsync(contato);
+                return Ok(contatoAtualizado);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao atualizar contato. ID: {Id}", id);
+                return StatusCode(500, new { message = "Erro interno ao processar requisição" });
+            }
+        }
+
+        /// <summary>
+        /// Deleta um contato
+        /// </summary>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult> Delete(int id)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest(new { message = "ID inválido" });
+                }
+
+                var deleted = await _repository.DeleteAsync(id);
+                
+                if (!deleted)
+                {
+                    return NotFound(new { message = $"Contato com ID {id} não encontrado" });
+                }
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao deletar contato. ID: {Id}", id);
+                return StatusCode(500, new { message = "Erro interno ao processar requisição" });
+            }
+        }
+    }
+}

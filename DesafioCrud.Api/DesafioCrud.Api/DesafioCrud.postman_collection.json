@@ -1,0 +1,393 @@
+{
+  "info": {
+    "name": "DesafioCrud API - Localhost Organizado",
+    "description": "Collection organizada para testar a API de Contatos no localhost com scripts automáticos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        },
+        "description": "Verifica se a API está funcionando e se o banco está acessível"
+      },
+      "response": []
+    },
+    {
+      "name": "2. Listar Todos os Contatos",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/contatos",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contatos"]
+        },
+        "description": "Lista todos os contatos cadastrados no banco"
+      },
+      "response": []
+    },
+    {
+      "name": "3. Criar Contato - João Silva",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.environment.set(\"contatoId\", jsonData.idPessoa);",
+              "    pm.test(\"Contato criado com sucesso\", function () {",
+              "        pm.response.to.have.status(201);",
+              "    });",
+              "    pm.test(\"ID foi gerado\", function () {",
+              "        pm.expect(jsonData.idPessoa).to.be.above(0);",
+              "    });",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"João Silva\",\n  \"dataNasc\": \"1990-05-15\",\n  \"telefone\": \"+55 11 98765-4321\",\n  \"email\": \"joao.silva@email.com\",\n  \"obs\": \"Cliente VIP - Primeiro contato de teste\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/contatos",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contatos"]
+        },
+        "description": "Cria o primeiro contato e salva o ID na variável de ambiente"
+      },
+      "response": []
+    },
+    {
+      "name": "4. Criar Contato - Maria Santos",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Maria Santos\",\n  \"dataNasc\": \"1985-08-22\",\n  \"telefone\": \"+55 21 97654-3210\",\n  \"email\": \"maria.santos@email.com\",\n  \"obs\": \"Contato comercial\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/contatos",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contatos"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5. Criar Contato - Pedro Oliveira",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Pedro Oliveira\",\n  \"dataNasc\": \"1992-03-10\",\n  \"telefone\": \"+55 11 96543-2109\",\n  \"email\": \"pedro.oliveira@email.com\",\n  \"obs\": null\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/contatos",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contatos"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "6. Criar Contato - Ana Costa",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Ana Costa\",\n  \"dataNasc\": \"1988-11-30\",\n  \"telefone\": \"+55 31 95432-1098\",\n  \"email\": \"ana.costa@email.com\",\n  \"obs\": \"Fornecedor principal\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/contatos",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contatos"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "7. Criar Contato - Carlos Ferreira",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Carlos Ferreira\",\n  \"dataNasc\": \"1995-07-18\",\n  \"telefone\": \"+55 41 94321-0987\",\n  \"email\": \"carlos.ferreira@email.com\",\n  \"obs\": \"Parceiro estratégico\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/contatos",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contatos"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "8. Buscar Contato por ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/contatos/{{contatoId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contatos", "{{contatoId}}"]
+        },
+        "description": "Busca o contato usando o ID salvo na variável de ambiente"
+      },
+      "response": []
+    },
+    {
+      "name": "9. Buscar Contato por ID Fixo (1)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/contatos/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contatos", "1"]
+        },
+        "description": "Busca o contato com ID 1"
+      },
+      "response": []
+    },
+    {
+      "name": "10. Atualizar Contato",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"idPessoa\": 1,\n  \"nome\": \"João Silva Atualizado\",\n  \"dataNasc\": \"1990-05-15\",\n  \"telefone\": \"+55 11 98765-4321\",\n  \"email\": \"joao.silva@email.com\",\n  \"obs\": \"Cliente VIP - Dados atualizados via Postman\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/contatos/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contatos", "1"]
+        },
+        "description": "Atualiza o contato com ID 1. Observe que DataAtualizacao será preenchida automaticamente"
+      },
+      "response": []
+    },
+    {
+      "name": "11. Deletar Contato (ID 5)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/contatos/5",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contatos", "5"]
+        },
+        "description": "Deleta o contato com ID 5"
+      },
+      "response": []
+    },
+    {
+      "name": "ERRO - Email Duplicado (409)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Teste Duplicado\",\n  \"dataNasc\": \"1990-01-01\",\n  \"telefone\": \"+55 11 99999-9999\",\n  \"email\": \"joao.silva@email.com\",\n  \"obs\": \"Este email já existe no banco\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/contatos",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contatos"]
+        },
+        "description": "Tenta criar contato com email duplicado. Deve retornar 409 Conflict"
+      },
+      "response": []
+    },
+    {
+      "name": "ERRO - Nome Muito Curto (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"AB\",\n  \"dataNasc\": \"1990-01-01\",\n  \"telefone\": \"+55 11 99999-9999\",\n  \"email\": \"teste.curto@email.com\",\n  \"obs\": null\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/contatos",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contatos"]
+        },
+        "description": "Nome com menos de 3 caracteres. Deve retornar 400 Bad Request"
+      },
+      "response": []
+    },
+    {
+      "name": "ERRO - Email Inválido (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Teste Email Inválido\",\n  \"dataNasc\": \"1990-01-01\",\n  \"telefone\": \"+55 11 99999-9999\",\n  \"email\": \"email-sem-arroba\",\n  \"obs\": null\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/contatos",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contatos"]
+        },
+        "description": "Email sem @ deve retornar 400 Bad Request"
+      },
+      "response": []
+    },
+    {
+      "name": "ERRO - Campos Obrigatórios Faltando (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Teste Incompleto\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/contatos",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contatos"]
+        },
+        "description": "Faltam campos obrigatórios. Deve retornar 400 Bad Request com lista de erros"
+      },
+      "response": []
+    },
+    {
+      "name": "ERRO - Buscar Inexistente (404)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/contatos/99999",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contatos", "99999"]
+        },
+        "description": "Busca contato que não existe. Deve retornar 404 Not Found"
+      },
+      "response": []
+    },
+    {
+      "name": "ERRO - ID Diferente no PUT (400)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"idPessoa\": 999,\n  \"nome\": \"Teste ID Diferente\",\n  \"dataNasc\": \"1990-01-01\",\n  \"telefone\": \"+55 11 99999-9999\",\n  \"email\": \"teste@email.com\",\n  \"obs\": null\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/contatos/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contatos", "1"]
+        },
+        "description": "ID da URL (1) diferente do ID no body (999). Deve retornar 400 Bad Request"
+      },
+      "response": []
+    },
+    {
+      "name": "ERRO - Deletar Inexistente (404)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/contatos/99999",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contatos", "99999"]
+        },
+        "description": "Tenta deletar contato que não existe. Deve retornar 404 Not Found"
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://localhost:5001",
+      "type": "string"
+    },
+    {
+      "key": "contatoId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
